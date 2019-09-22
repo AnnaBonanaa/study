@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>First lab</title>
+</head>
+<body style="display: flex">
+<div style=" text-align: center; margin: 0px auto; background-color:#d1e4a7; font-weight: bold;">
+<form style="border: 1px solid #000; padding: 20px;" method="post" class="register_form">
+    <p>FORM FOR REGISTRATION</p>
+	<label>
+        <p>Your Name</p>
+        <input type="text" name="regi_name" required>
+    </label>
+	<label>
+        <p>Your Surname</p>
+        <input type="text" name="regi_surname" required>
+    </label>
+    <label>
+        <p>Your Login</p>
+        <input type="text" name="regi_login" required>
+    </label>
+    <label>
+        <p>Your password</p>
+        <input type="password" name="regi_password" required>
+    </label>
+    <label>
+        <p>Your email</p>
+        <input type="email" name="regi_email" required>
+    </label>
+  <br>
+   <button type="submit" style="margin: 10px; padding: 5px 10px; border: 1px solid #000; background-color: #86ce33; color: #fff; font-weight: bold;">submit</button>
+</form>
+</div>
+<div style="border: 1px solid #000; text-align: center; margin: 0px auto; background-color:#d1e4a7; font-weight: bold;">
+<form style="padding: 30px;" method="post" class="login_form">
+    <p>LOGIN FORM</p>
+    <label>
+        <p>Your Login</p>
+        <input type="text" name="log_login" required>
+    </label>
+    <label>
+        <p>Your password</p>
+        <input type="password" name="log_password" required>
+    </label>
+	<br>
+    <button type="submit" style="margin: 10px; padding: 5px 10px; border: 1px solid #000; background-color: #86ce33; color: #fff; font-weight: bold;">submit</button>
+</form>
+</div>
+</body>
+</html>
+<?php
+if (!$link = mysqli_connect('localhost', 'root', '')) {
+    echo 'Не удалось подключиться к mysql';
+    exit;
+}
+if (!mysqli_select_db($link,'labka')) {
+    echo 'Не удалось выбрать базу данных ';
+    exit;
+}
+
+if(isset($_POST['regi_login'])||isset($_POST['regi_password'])||isset($_POST['regi_email'])){
+
+    $name = $_POST['regi_name'];
+	$surname = $_POST['regi_surname'];
+	$login = $_POST['regi_login'];
+    $email = $_POST['regi_email'];
+	
+	$password = $_POST['regi_password'];
+    $passhash = password_hash($password, PASSWORD_BCRYPT);
+
+    $sql = "INSERT INTO tab1 (name, surname, login, password, email) VALUES ('$name', '$surname', '$login', '$passhash', '$email');";
+    echo $sql;
+    $result = mysqli_query($link,$sql);
+	
+}
+
+if(isset($_POST['log_login'])||isset($_POST['log_password'])){
+    $password = $_POST['log_password'];
+    $passhash = password_hash($password, PASSWORD_BCRYPT);
+
+    $login = $_POST['log_login'];
+
+    $sql    = "SELECT * FROM tab1 WHERE login = '$login';";
+    $result = mysqli_fetch_object (mysqli_query($link,$sql));
+
+if($result!=NULL){
+    if (password_verify($password, $result->password)) {
+        echo 'Пароль правильный! ';
+    } else {
+        echo 'Пароль неправильный. ';
+    }
+}
+else{
+    echo 'Такого пользователя не существует! ';
+}
+
+}
+?>
